@@ -1,54 +1,68 @@
 {% extends "core/base.html" %}
 
-{% block title %}Items{% endblock  %}
+{% block title %}Items{% endblock %}
 
 {% block content %}
-<div class="pb-6 grid grid-cols-4 gap-4 bg-gray-100">
-    <div class="col-span-1">
-        <form action="{% url "item:items" %}" method="get">
-            <input type="text" value="{{ query }}" placeholder="Find a toy, or....." name='query' class="w-full py-4 px-6 border rounded-xl">
-            <button class="mt-2 py-4 px-8 text-lg bg-teal-500 text-white rounded-xl">Search</button>
+<div class="pb-12 px-4 sm:px-6 grid grid-cols-1 md:grid-cols-4 gap-6 bg-gray-100 min-h-screen rounded-xl">
+    
+    <!-- Sidebar - Moves to top on mobile -->
+    <div class="md:col-span-1 bg-white rounded-xl p-4 sm:p-6 shadow sticky top-4 md:static h-fit">
+        <form action="{% url 'item:items' %}" method="get">
+            <input 
+                type="text" 
+                name="query" 
+                value="{{ query }}" 
+                placeholder="Find a toy, or..." 
+                class="w-full py-2 sm:py-3 px-3 sm:px-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+            >
+            <button class="w-full mt-3 py-2 sm:py-3 px-4 text-base sm:text-lg bg-teal-500 hover:bg-teal-600 text-white rounded-xl font-semibold">
+                Search
+            </button>
         </form>    
 
-        <hr class="my-6">
+        <hr class="my-4 sm:my-6">
 
-        <p class="font-semibold">Categories</p>
-
-        <ul>
+        <p class="font-semibold text-base sm:text-lg mb-2">Categories</p>
+        <ul class="space-y-1 sm:space-y-2">
             {% for category in categories %}
-                <li class="px-2 py-2 rounded-xl{% if category.id == category_id %} bg-gray-300 {% endif %}">
-                    <a href="{% url "item:items" %}?query = {{ query }}&category={{ category.id }}">{{ category.name }}</a>
+                <li>
+                    <a href="{% url 'item:items' %}?query={{ query|urlencode }}&category={{ category.id }}"
+                       class="block px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl transition {% if category.id == category_id %}bg-teal-100 text-teal-800 font-semibold{% else %}hover:bg-gray-100{% endif %}">
+                        {{ category.name }}
+                    </a>
                 </li>
             {% endfor %}
         </ul>
 
-        <hr class="my-6">
+        <hr class="my-4 sm:my-6">
 
-        <p class="font-semibold">Clear Filters</p>
-
-        <ul>
-            <li>
-                <a href="{% url "item:items" %}" class="mt-2 px-8 py-4 inline-block bg-yellow-500 text-lg rounded-xl text-white">Clear</a>
-            </li>
-        </ul>
+        <p class="font-semibold text-base sm:text-lg mb-2">Clear Filters</p>
+        <a href="{% url 'item:items' %}" class="w-full block mt-1 sm:mt-2 py-2 sm:py-3 px-4 bg-yellow-500 hover:bg-yellow-600 text-white text-center rounded-xl font-semibold text-sm sm:text-base">
+            Clear
+        </a>
     </div>
 
-    <div class="col-span-3">
-        <div class="grid grid-cols-3 gap-3">
-            {% for item in items %}
-                <div>
-                    <a href="{% url "item:detail" item.id %}">
-                        <div>
-                            <img src="{{ item.image.url }}" alt="" class="rounded-t-xl ">
-                        </div>
-                        <div class="p-6 bg-white rounded-b-xl">
-                            <h2 class="text-2xl">{{ item.name }}</h2>
-                            <p class="text-gray-500">Price: {{ item.price }}</p>
-                        </div>
-                    </a>
-                </div>
-            {% endfor %}
-        </div>
+    <!-- Items Grid - Full width on mobile -->
+    <div class="md:col-span-3">
+        {% if items %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {% for item in items %}
+                    <div class="bg-white rounded-xl shadow hover:shadow-lg transition">
+                        <a href="{% url 'item:detail' item.id %}">
+                            <img src="{{ item.image.url }}" alt="{{ item.name }}" class="rounded-t-xl w-full h-40 sm:h-48 object-cover">
+                            <div class="p-3 sm:p-4">
+                                <h2 class="text-lg sm:text-xl font-semibold">{{ item.name }}</h2>
+                                <p class="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Price: {{ item.price }}</p>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-8 sm:py-12">
+                <p class="text-base sm:text-lg text-gray-600">No items found. Try a different search or category.</p>
+            </div>
+        {% endif %}
     </div>
 </div>
-{% endblock  %}
+{% endblock %}
